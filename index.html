@@ -2,22 +2,53 @@
 <html>
 <head>
     <script>
-        const params = new URLSearchParams(window.location.search);
-        const targetUrl = params.get('q');
-        
-        if (targetUrl) {
-            // Выбираем прокси-сервер (можно добавить логику выбора)
-            const proxyServer = "https://cdn.proxyium.com/proxyrequest.php?type=iframe&url=";
+        function autoSubmit() {
+            const params = new URLSearchParams(window.location.search);
             
-            // Формируем конечный URL
-            const finalUrl = `${proxyServer}${encodeURIComponent(targetUrl)}`;
+            // Извлекаем параметры из URL
+            const targetUrl = params.get('q');
+            const country = params.get('country') || 'pl'; // значение по умолчанию
             
-            // Перенаправляем пользователя
-            window.location.href = finalUrl;
+            if (!targetUrl) {
+                document.body.innerHTML = 'Error: Missing "q" parameter';
+                return;
+            }
+
+            // Валидация URL
+            if (!/^https?:\/\//i.test(targetUrl)) {
+                document.body.innerHTML = 'Invalid URL format';
+                return;
+            }
+
+            // Динамически создаем скрытую форму
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.action = 'https://cdn.proxyium.com/proxyrequest.php';
+
+            // Добавляем параметры
+            const typeInput = document.createElement('input');
+            typeInput.name = 'type';
+            typeInput.value = 'iframe';
+            
+            const countryInput = document.createElement('input');
+            countryInput.name = 'proxy_country';
+            countryInput.value = country;
+            
+            const urlInput = document.createElement('input');
+            urlInput.name = 'url';
+            urlInput.value = targetUrl;
+
+            form.appendChild(typeInput);
+            form.appendChild(countryInput);
+            form.appendChild(urlInput);
+            document.body.appendChild(form);
+
+            // Автоматическая отправка формы
+            form.submit();
         }
     </script>
 </head>
-<body>
-    Redirecting...
+<body onload="autoSubmit()">
+    Loading...
 </body>
 </html>
