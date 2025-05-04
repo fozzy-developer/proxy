@@ -1,54 +1,57 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <script>
-        function autoSubmit() {
-            const params = new URLSearchParams(window.location.search);
-            
-            // Извлекаем параметры из URL
-            const targetUrl = params.get('q');
-            const country = params.get('country') || 'pl'; // значение по умолчанию
-            
-            if (!targetUrl) {
-                document.body.innerHTML = 'Error: Missing "q" parameter';
-                return;
-            }
-
-            // Валидация URL
-            if (!/^https?:\/\//i.test(targetUrl)) {
-                document.body.innerHTML = 'Invalid URL format';
-                return;
-            }
-
-            // Динамически создаем скрытую форму
-            const form = document.createElement('form');
-            form.method = 'POST';
-            form.action = 'https://cdn.proxyium.com/proxyrequest.php';
-
-            // Добавляем параметры
-            const typeInput = document.createElement('input');
-            typeInput.name = 'type';
-            typeInput.value = 'iframe';
-            
-            const countryInput = document.createElement('input');
-            countryInput.name = 'proxy_country';
-            countryInput.value = country;
-            
-            const urlInput = document.createElement('input');
-            urlInput.name = 'url';
-            urlInput.value = targetUrl;
-
-            form.appendChild(typeInput);
-            form.appendChild(countryInput);
-            form.appendChild(urlInput);
-            document.body.appendChild(form);
-
-            // Автоматическая отправка формы
-            form.submit();
+    <meta charset="utf-8">
+    <title>Proxy Gateway</title>
+    <style>
+        iframe {
+            width: 100%;
+            height: 100vh;
+            border: none;
+            position: fixed;
+            top: 0;
+            left: 0;
         }
-    </script>
+        .loader {
+            padding: 20px;
+            text-align: center;
+            font-family: Arial, sans-serif;
+        }
+    </style>
 </head>
-<body onload="autoSubmit()">
-    Loading...
+<body>
+    <div class="loader">Инициализация прокси-соединения...</div>
+    
+    <script>
+        (function() {
+            const params = new URLSearchParams(location.search);
+            const targetUrl = params.get('q');
+            const country = params.get('country') || 'pl';
+
+            // Валидация параметров
+            if (!targetUrl || !/^https?:\/\//i.test(targetUrl)) {
+                document.body.innerHTML = '<div class="loader">Ошибка: Некорректный URL</div>';
+                return;
+            }
+
+            // Формируем URL прокси-сервера
+            const proxyUrl = new URL('https://cdn.proxyium.com/proxyrequest.php');
+            proxyUrl.searchParams.set('type', 'iframe');
+            proxyUrl.searchParams.set('proxy_country', country);
+            proxyUrl.searchParams.set('url', targetUrl);
+
+            // Создаем iframe
+            const iframe = document.createElement('iframe');
+            iframe.src = proxyUrl.toString();
+            
+            // Обработка загрузки
+            iframe.onload = () => document.querySelector('.loader').remove();
+            iframe.onerror = () => {
+                document.body.innerHTML = '<div class="loader">Ошибка подключения к прокси-серверу</div>';
+            };
+
+            document.body.appendChild(iframe);
+        })();
+    </script>
 </body>
 </html>
