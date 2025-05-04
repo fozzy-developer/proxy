@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <script>
+        const params = new URLSearchParams(window.location.search);
+        const targetUrl = params.get('q');
+        
+        if (targetUrl) {
+            // Выбираем прокси-сервер (можно добавить логику выбора)
+            const proxyServer = "https://cdn.proxyium.com/proxyrequest.php?type=iframe&url=";
+            
+            // Формируем конечный URL
+            const finalUrl = `${proxyServer}${encodeURIComponent(targetUrl)}`;
+            
+            // Перенаправляем пользователя
+            window.location.href = finalUrl;
+        }
+    </script>
+</head>
+<body>
+    Redirecting...
+</body>
+</html>
