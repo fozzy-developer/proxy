@@ -1,57 +1,110 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <meta charset="utf-8">
-    <title>Proxy Gateway</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mini Proxy Site</title>
     <style>
-        iframe {
-            width: 100%;
-            height: 100vh;
-            border: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-        }
-        .loader {
-            padding: 20px;
-            text-align: center;
+        body {
             font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+        .container {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            max-width: 600px;
+            width: 100%;
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+        .form-group {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        select, input[type="text"] {
+            padding: 10px;
+            font-size: 16px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            margin-right: 10px;
+        }
+        input[type="text"] {
+            flex: 1;
+        }
+        button {
+            padding: 10px 20px;
+            background: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+        .policies {
+            font-size: 12px;
+            color: #666;
+            text-align: center;
+            margin-top: 10px;
+        }
+        .policies a {
+            color: #007bff;
+            text-decoration: none;
+        }
+        @media (max-width: 600px) {
+            .form-group {
+                flex-direction: column;
+            }
+            select, input[type="text"], button {
+                width: 100%;
+                margin: 5px 0;
+            }
         }
     </style>
 </head>
 <body>
-    <div class="loader">Инициализация прокси-соединения...</div>
-    
+    <div class="container">
+        <h1>Mini Proxy Site</h1>
+        <form id="proxy-form" action="https://cdn.proxyium.com/proxyrequest.php" method="POST">
+            <input type="hidden" name="type" value="">
+            <div class="form-group">
+                <select name="proxy_country" id="proxy_country">
+                    <option value="pl" selected>Poland/France (Fast)</option>
+                    <option value="us">United States (Medium)</option>
+                    <option value="sg">Singapore (Slow)</option>
+                    <option value="de">Germany (Slow)</option>
+                </select>
+                <input type="text" name="url" id="url" placeholder="Enter URL (e.g., https://example.com)" required>
+                <button type="submit">GO</button>
+            </div>
+        </form>
+        <div class="policies">
+            By using this proxy, you accept the <a href="https://proxyium.com/web-proxy-policies" target="_blank">web-proxy policies</a>.
+        </div>
+    </div>
+
     <script>
-        (function() {
-            const params = new URLSearchParams(location.search);
-            const targetUrl = params.get('q');
-            const country = params.get('country') || 'pl';
-
-            // Валидация параметров
-            if (!targetUrl || !/^https?:\/\//i.test(targetUrl)) {
-                document.body.innerHTML = '<div class="loader">Ошибка: Некорректный URL</div>';
-                return;
+        document.getElementById('proxy-form').addEventListener('submit', function(event) {
+            const urlInput = document.getElementById('url').value;
+            // Проверка корректности URL
+            if (!urlInput.match(/^https?:\/\//)) {
+                alert('Please enter a valid URL starting with http:// or https://');
+                event.preventDefault();
             }
-
-            // Формируем URL прокси-сервера
-            const proxyUrl = new URL('https://cdn.proxyium.com/proxyrequest.php');
-            proxyUrl.searchParams.set('type', 'iframe');
-            proxyUrl.searchParams.set('proxy_country', country);
-            proxyUrl.searchParams.set('url', targetUrl);
-
-            // Создаем iframe
-            const iframe = document.createElement('iframe');
-            iframe.src = proxyUrl.toString();
-            
-            // Обработка загрузки
-            iframe.onload = () => document.querySelector('.loader').remove();
-            iframe.onerror = () => {
-                document.body.innerHTML = '<div class="loader">Ошибка подключения к прокси-серверу</div>';
-            };
-
-            document.body.appendChild(iframe);
-        })();
+        });
     </script>
 </body>
 </html>
